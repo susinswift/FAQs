@@ -692,7 +692,6 @@ function generateCSMessage(compareProds) {
 
   compareProds.forEach((p, i) => {
     const num = ["1️⃣","2️⃣","3️⃣","4️⃣"][i];
-    const col = catColors[p.category] || "#64748b";
     msg += `${num} ${p.sku} — ${p.name}\n`;
     msg += `📌 ${p.karakteristik}\n`;
     const points = generateSellingPoint(p);
@@ -700,35 +699,473 @@ function generateCSMessage(compareProds) {
     msg += "\n";
   });
 
-  if (compareProds.length > 1) {
-    msg += "━━━━━━━━━━━━━━━━\n";
-    msg += "💡 Rekomendasi Singkat:\n";
+  // Cek semua produk sama kategori
+  const allSameCat = compareProds.every(p => p.category === compareProds[0].category);
+  if (!allSameCat || compareProds.length < 2) {
+    msg += "Kalau ada pertanyaan lain, kakak bisa tanya-tanya lagi ya! 🙏";
+    return msg;
+  }
 
-    const hasBudget = compareProds.find(p =>
-      p.karakteristik && (p.karakteristik.toLowerCase().includes("hemat") ||
-      p.karakteristik.toLowerCase().includes("dasar") ||
-      p.karakteristik.toLowerCase().includes("pemula"))
-    );
-    const hasPremium = compareProds.find(p =>
-      p.karakteristik && (p.karakteristik.toLowerCase().includes("ditingkatkan") ||
-      p.karakteristik.toLowerCase().includes("upgrade") ||
-      p.karakteristik.toLowerCase().includes("pintar") ||
-      p.karakteristik.toLowerCase().includes("teknologi"))
-    );
+  msg += "━━━━━━━━━━━━━━━━\n";
+  msg += "💡 Rekomendasi Singkat:\n";
 
-    if (hasBudget && hasPremium) {
-      msg += `🟢 Kalau kakak cari yang *budget-friendly*, ${hasBudget.sku} bisa jadi pilihan terbaik!\n`;
-      msg += `⭐ Tapi kalau mau yang *performa lebih maksimal*, ${hasPremium.sku} worth it banget kak!\n`;
-    } else if (compareProds.length === 2) {
-      msg += `🟢 ${compareProds[0].sku} cocok untuk kebutuhan standar sehari-hari.\n`;
-      msg += `⭐ ${compareProds[1].sku} menawarkan fitur lebih lengkap untuk hasil optimal.\n`;
+  const cat = compareProds[0].category;
+  let rekomendasi = "";
+
+  // ── PER CATEGORY LOGIC ──
+
+  if (cat === "Vacuum Cleaner") {
+    const strongest = compareProds.reduce((a, b) =>
+      parseInt(a.suction) > parseInt(b.suction) ? a : b);
+    const lightest = compareProds.reduce((a, b) =>
+      parseFloat(a.berat) < parseFloat(b.berat) ? a : b);
+    const bestFilter = compareProds.find(p => p.filter && p.filter.includes("H12")) ||
+                       compareProds.find(p => p.filter && p.filter.includes("H13")) ||
+                       compareProds.find(p => p.filter && p.filter.includes("F9"));
+    const cordless = compareProds.filter(p => p.metode === "Tidak berkabel");
+    const corded   = compareProds.filter(p => p.metode === "Berkabel");
+
+    if (cordless.length > 0 && corded.length > 0) {
+      rekomendasi += `🔌 Kalau kakak butuh daya hisap stabil tanpa khawatir baterai, ${corded.map(p=>p.sku).join(" & ")} pilihan tepat karena berkabel.\n`;
+      rekomendasi += `🔋 Tapi kalau kakak lebih suka bebas bergerak tanpa kabel, ${cordless.map(p=>p.sku).join(" & ")} lebih fleksibel dipakai di mana aja.\n`;
     } else {
-      compareProds.forEach(p => {
-        msg += `• ${p.sku} — ${p.karakteristik}\n`;
-      });
+      rekomendasi += `💪 Untuk daya hisap paling kuat, ${strongest.sku} unggul dengan suction ${strongest.suction}.\n`;
+      if (lightest.sku !== strongest.sku)
+        rekomendasi += `🪶 Kalau kakak prioritasin yang ringan & gampang dibawa, ${lightest.sku} lebih ringan di ${lightest.berat}.\n`;
+    }
+    if (bestFilter)
+      rekomendasi += `🛡️ Untuk filtrasi terbaik, ${bestFilter.sku} dengan filter ${bestFilter.filter} paling efektif nangkap debu halus.\n`;
+  }
+
+  else if (cat === "Dust Mite Vacuum") {
+    const strongest = compareProds.reduce((a, b) =>
+      parseInt(a.suction) > parseInt(b.suction) ? a : b);
+    const highestVibration = compareProds.reduce((a, b) =>
+      parseInt(a.getaran) > parseInt(b.getaran) ? a : b);
+    const hasUV = compareProds.filter(p => p.sterilisasi_uv && p.sterilisasi_uv.includes("✓"));
+    const hasExtra = compareProds.filter(p => p.fungsi_lainnya && p.fungsi_lainnya !== "×");
+    const hasAccessory = compareProds.filter(p => p.aksesori && p.aksesori !== "×");
+
+    rekomendasi += `💪 Daya hisap paling kuat: ${strongest.sku} dengan ${strongest.suction} — paling efektif bersihin tungau membandel.\n`;
+    if (highestVibration.sku !== strongest.sku || parseInt(highestVibration.getaran) > 10000)
+      rekomendasi += `📳 Getaran tertinggi: ${highestVibration.sku} di ${highestVibration.getaran} — meluruhkan tungau yang nempel lebih dalam.\n`;
+    if (hasUV.length > 0)
+      rekomendasi += `☀️ ${hasUV.map(p=>p.sku).join(" & ")} punya sterilisasi UV — lebih higienis karena bunuh kuman & bakteri sekaligus.\n`;
+    if (hasExtra.length > 0)
+      rekomendasi += `⭐ ${hasExtra.map(p=>p.sku).join(" & ")} punya fungsi tambahan (${hasExtra.map(p=>p.fungsi_lainnya).join(", ")}) — nilai lebih dibanding yang lain.\n`;
+    if (hasAccessory.length > 0)
+      rekomendasi += `🎁 ${hasAccessory.map(p=>p.sku).join(" & ")} sudah termasuk ${hasAccessory.map(p=>p.aksesori).join(", ")}.\n`;
+  }
+
+  else if (cat === "Garment Steamer / Iron") {
+    const mostSteam = compareProds.reduce((a, b) =>
+      parseInt(a.jumlah_uap) > parseInt(b.jumlah_uap) ? a : b);
+    const fastestHeat = compareProds.reduce((a, b) =>
+      parseInt(a.waktu_pemanasan) < parseInt(b.waktu_pemanasan) ? a : b);
+    const biggestTank = compareProds.reduce((a, b) =>
+      parseInt(a.kapasitas) > parseInt(b.kapasitas) ? a : b);
+    const stands = compareProds.filter(p => p.tipe === "Stand Steamer");
+    const handhelds = compareProds.filter(p => p.tipe === "Setrika Uap Tangan");
+
+    if (stands.length > 0 && handhelds.length > 0) {
+      rekomendasi += `🏠 ${stands.map(p=>p.sku).join(" & ")} model stand cocok buat pemakaian intensif di rumah dengan kapasitas tangki besar.\n`;
+      rekomendasi += `✈️ ${handhelds.map(p=>p.sku).join(" & ")} lebih ringkas & gampang disimpan, cocok buat travel atau pemakaian sesekali.\n`;
+    } else {
+      rekomendasi += `💨 Output uap terbesar: ${mostSteam.sku} dengan ${mostSteam.jumlah_uap} — ngilangin kusut lebih cepat & efisien.\n`;
+      if (fastestHeat.sku !== mostSteam.sku)
+        rekomendasi += `⚡ Panas paling cepat: ${fastestHeat.sku} dalam ${fastestHeat.waktu_pemanasan} — langsung siap pakai.\n`;
+      if (biggestTank.sku !== fastestHeat.sku)
+        rekomendasi += `💧 Tangki terbesar: ${biggestTank.sku} dengan ${biggestTank.kapasitas} — paling jarang isi ulang.\n`;
     }
   }
 
+  else if (cat === "Dehumidifier") {
+    const strongest = compareProds.reduce((a, b) =>
+      parseInt(a.dehumidifikasi) > parseInt(b.dehumidifikasi) ? a : b);
+    const quietest = compareProds.reduce((a, b) =>
+      parseInt(a.kebisingan) < parseInt(b.kebisingan) ? a : b);
+    const biggestTank = compareProds.reduce((a, b) =>
+      parseFloat(a.kapasitas_tangki) > parseFloat(b.kapasitas_tangki) ? a : b);
+    const hasAroma = compareProds.filter(p => p.karakteristik && p.karakteristik.includes("Aromaterapi"));
+
+    rekomendasi += `💪 Paling kuat menyerap kelembaban: ${strongest.sku} dengan ${strongest.dehumidifikasi} per hari.\n`;
+    if (quietest.sku !== strongest.sku)
+      rekomendasi += `🔇 Paling senyap: ${quietest.sku} di ${quietest.kebisingan} — nyaman dipakai di kamar tidur.\n`;
+    if (biggestTank.sku !== strongest.sku)
+      rekomendasi += `🪣 Tangki terbesar: ${biggestTank.sku} dengan ${biggestTank.kapasitas_tangki} — jarang perlu dikosongkan.\n`;
+    if (hasAroma.length > 0)
+      rekomendasi += `🌸 ${hasAroma.map(p=>p.sku).join(" & ")} punya bonus fungsi aromaterapi — ruangan wangi sekaligus kering.\n`;
+  }
+
+  else if (cat === "Humidifier") {
+    const biggestTank = compareProds.reduce((a, b) =>
+      parseInt(a.kapasitas) > parseInt(b.kapasitas) ? a : b);
+    const longestBattery = compareProds.reduce((a, b) =>
+      parseInt(a.daya_baterai) > parseInt(b.daya_baterai) ? a : b);
+    const mostMist = compareProds.reduce((a, b) =>
+      parseInt(a.melembabkan) > parseInt(b.melembabkan) ? a : b);
+    const cordless = compareProds.filter(p => p.tipe === "Tanpa kabel");
+
+    rekomendasi += `💧 Tangki terbesar: ${biggestTank.sku} dengan ${biggestTank.kapasitas} — tahan lebih lama.\n`;
+    if (mostMist.sku !== biggestTank.sku)
+      rekomendasi += `🌫️ Output uap terbanyak: ${mostMist.sku} dengan ${mostMist.melembabkan} — melembabkan ruangan lebih cepat.\n`;
+    if (cordless.length > 0)
+      rekomendasi += `🔋 ${cordless.map(p=>p.sku).join(" & ")} tanpa kabel — bebas taruh di mana aja.\n`;
+    if (longestBattery.sku)
+      rekomendasi += `⏱️ Tahan paling lama: ${longestBattery.sku} sampai ${longestBattery.daya_baterai}.\n`;
+  }
+
+  else if (cat === "Air Purifier") {
+    const highestCADR = compareProds.reduce((a, b) =>
+      parseInt(a.cadr) > parseInt(b.cadr) ? a : b);
+    const quietest = compareProds.reduce((a, b) =>
+      parseInt(a.kebisingan) < parseInt(b.kebisingan) ? a : b);
+    const bestFilter = compareProds.find(p => p.filter && p.filter.includes("H13")) ||
+                       compareProds.find(p => p.filter && p.filter.includes("H11"));
+    const hasApp = compareProds.filter(p => p.cara_kontrol && p.cara_kontrol.includes("APP"));
+    const largestRoom = compareProds.reduce((a, b) => {
+      const aVal = parseInt((a.cocok_untuk || "0").split("~")[1] || a.cocok_untuk);
+      const bVal = parseInt((b.cocok_untuk || "0").split("~")[1] || b.cocok_untuk);
+      return aVal > bVal ? a : b;
+    });
+
+    rekomendasi += `💨 CADR tertinggi: ${highestCADR.sku} dengan ${highestCADR.cadr} — purifikasi udara paling cepat & cocok untuk ruangan ${highestCADR.cocok_untuk}.\n`;
+    if (bestFilter)
+      rekomendasi += `🛡️ Filter terbaik: ${bestFilter.sku} dengan ${bestFilter.filter} — paling efektif nangkap partikel berbahaya.\n`;
+    if (hasApp.length > 0)
+      rekomendasi += `📱 ${hasApp.map(p=>p.sku).join(" & ")} bisa dikontrol lewat aplikasi — praktis buat kakak yang mobile.\n`;
+    if (quietest.sku !== highestCADR.sku)
+      rekomendasi += `🔇 Paling senyap: ${quietest.sku} — cocok dipakai di kamar tidur atau ruang kerja.\n`;
+  }
+
+  else if (cat === "Vacuum Mop") {
+    const strongest = compareProds.reduce((a, b) =>
+      parseInt(a.suction) > parseInt(b.suction) ? a : b);
+    const longestUse = compareProds.reduce((a, b) => {
+      const aVal = parseInt((a.waktu_pakai || "0").split("~")[1] || a.waktu_pakai);
+      const bVal = parseInt((b.waktu_pakai || "0").split("~")[1] || b.waktu_pakai);
+      return aVal > bVal ? a : b;
+    });
+    const biggestDirty = compareProds.reduce((a, b) =>
+      parseInt(a.tangki_kotor) > parseInt(b.tangki_kotor) ? a : b);
+
+    rekomendasi += `💪 Daya hisap terkuat: ${strongest.sku} dengan ${strongest.suction} — paling efektif buat kotoran berat.\n`;
+    if (longestUse.sku !== strongest.sku)
+      rekomendasi += `⏱️ Paling tahan lama dipakai: ${longestUse.sku} sampai ${longestUse.waktu_pakai} — cocok untuk area yang luas.\n`;
+    if (biggestDirty.sku !== strongest.sku)
+      rekomendasi += `🪣 Tangki kotor terbesar: ${biggestDirty.sku} dengan ${biggestDirty.tangki_kotor} — jarang perlu dikosongkan.\n`;
+  }
+
+  else if (cat === "Carpet & Upholstery") {
+    const strongest = compareProds.reduce((a, b) =>
+      parseInt(a.suction) > parseInt(b.suction) ? a : b);
+    const biggestClean = compareProds.reduce((a, b) =>
+      parseInt(a.tangki_bersih) > parseInt(b.tangki_bersih) ? a : b);
+    const mostModes = compareProds.reduce((a, b) =>
+      parseInt(a.pengaturan) > parseInt(b.pengaturan) ? a : b);
+
+    rekomendasi += `💪 Daya hisap terkuat: ${strongest.sku} dengan ${strongest.suction} — paling efektif buat noda membandel di karpet & sofa.\n`;
+    if (biggestClean.sku !== strongest.sku)
+      rekomendasi += `💧 Tangki air terbesar: ${biggestClean.sku} dengan ${biggestClean.tangki_bersih} — bisa bersihkan area lebih luas.\n`;
+    if (mostModes.sku !== strongest.sku)
+      rekomendasi += `🎛️ Mode terbanyak: ${mostModes.sku} dengan ${mostModes.pengaturan} mode — paling fleksibel untuk berbagai jenis noda.\n`;
+  }
+
+  else if (cat === "Electric Fan") {
+    const quietest = compareProds.reduce((a, b) =>
+      parseInt(a.kebisingan) < parseInt(b.kebisingan) ? a : b);
+    const mostModes = compareProds.reduce((a, b) =>
+      parseInt(a.pengaturan) > parseInt(b.pengaturan) ? a : b);
+    const lowestPower = compareProds.reduce((a, b) =>
+      parseFloat(a.daya) < parseFloat(b.daya) ? a : b);
+
+    rekomendasi += `🔇 Paling senyap: ${quietest.sku} di ${quietest.kebisingan} — nyaman buat kerja atau tidur.\n`;
+    if (lowestPower.sku !== quietest.sku)
+      rekomendasi += `⚡ Paling hemat listrik: ${lowestPower.sku} dengan ${lowestPower.daya} — cocok dipakai seharian.\n`;
+    if (mostModes.sku !== quietest.sku && mostModes.pengaturan)
+      rekomendasi += `🎛️ Pilihan kecepatan terbanyak: ${mostModes.sku} dengan ${mostModes.pengaturan} — angin bisa disesuaikan lebih presisi.\n`;
+  }
+
+  else if (cat === "Air Cooler") {
+    const biggestTank = compareProds.reduce((a, b) =>
+      parseInt(a.kapasitas) > parseInt(b.kapasitas) ? a : b);
+    const lowestPower = compareProds.reduce((a, b) =>
+      parseInt(a.daya) < parseInt(b.daya) ? a : b);
+    const quietest = compareProds.reduce((a, b) =>
+      parseInt(a.kebisingan) < parseInt(b.kebisingan) ? a : b);
+
+    rekomendasi += `💧 Tangki terbesar: ${biggestTank.sku} dengan ${biggestTank.kapasitas} — tahan lebih lama tanpa isi ulang.\n`;
+    if (lowestPower.sku !== biggestTank.sku)
+      rekomendasi += `⚡ Paling hemat listrik: ${lowestPower.sku} dengan ${lowestPower.daya} — adem tanpa bikin tagihan bengkak.\n`;
+    if (quietest.sku !== biggestTank.sku)
+      rekomendasi += `🔇 Paling senyap: ${quietest.sku} di ${quietest.kebisingan} — cocok buat kamar tidur.\n`;
+  }
+
+  else if (cat === "Air Fryer (Digital)" || cat === "Air Fryer (Knob)") {
+    const biggest = compareProds.reduce((a, b) => {
+      const aVol = parseFloat((a.kapasitas||"0").split("L")[0]);
+      const bVol = parseFloat((b.kapasitas||"0").split("L")[0]);
+      return aVol > bVol ? a : b;
+    });
+    const lowestPower = compareProds.reduce((a, b) =>
+      parseInt(a.daya) < parseInt(b.daya) ? a : b);
+    const hasWindow = compareProds.filter(p => p.jendela === "✓");
+    const noWindow  = compareProds.filter(p => p.jendela === "×");
+
+    rekomendasi += `🍳 Kapasitas terbesar: ${biggest.sku} dengan ${biggest.kapasitas} — paling cocok untuk masak porsi keluarga.\n`;
+    if (lowestPower.sku !== biggest.sku)
+      rekomendasi += `⚡ Paling hemat listrik: ${lowestPower.sku} dengan ${lowestPower.daya} — masak sehat tanpa boros energi.\n`;
+    if (hasWindow.length > 0 && noWindow.length > 0)
+      rekomendasi += `👀 ${hasWindow.map(p=>p.sku).join(" & ")} punya jendela transparan — bisa pantau masakan tanpa buka tutup, lebih praktis!\n`;
+  }
+
+  else if (cat === "Electric Cooker") {
+    const biggest = compareProds.reduce((a, b) => {
+      const aVol = parseFloat((a.kapasitas||"0").replace(/[^0-9.]/g,""));
+      const bVol = parseFloat((b.kapasitas||"0").replace(/[^0-9.]/g,""));
+      return aVol > bVol ? a : b;
+    });
+    const fastest = compareProds.reduce((a, b) =>
+      parseInt(a.daya) > parseInt(b.daya) ? a : b);
+    const hasSS = compareProds.filter(p => p.bahan && p.bahan.includes("SUS"));
+    const hasAlu = compareProds.filter(p => p.bahan && p.bahan.includes("aluminium"));
+
+    rekomendasi += `🍲 Kapasitas terbesar: ${biggest.sku} dengan ${biggest.kapasitas} — cocok untuk keluarga lebih besar.\n`;
+    if (fastest.sku !== biggest.sku)
+      rekomendasi += `⚡ Daya lebih besar: ${fastest.sku} dengan ${fastest.daya} — masak lebih cepat & efisien.\n`;
+    if (hasSS.length > 0 && hasAlu.length > 0)
+      rekomendasi += `🔩 ${hasSS.map(p=>p.sku).join(" & ")} pakai stainless steel — lebih awet. ${hasAlu.map(p=>p.sku).join(" & ")} pakai aluminium — lebih ringan & panas merata.\n`;
+  }
+
+  else if (cat === "Electric Steamer") {
+    const mostTier = compareProds.reduce((a, b) =>
+      parseInt(a.tier) > parseInt(b.tier) ? a : b);
+    const biggest = compareProds.reduce((a, b) => {
+      const aVol = parseInt((a.kapasitas||"0").replace(/[^0-9]/g,"").slice(0,2)||"0");
+      const bVol = parseInt((b.kapasitas||"0").replace(/[^0-9]/g,"").slice(0,2)||"0");
+      return aVol > bVol ? a : b;
+    });
+    const fastest = compareProds.reduce((a, b) =>
+      parseInt(a.daya) > parseInt(b.daya) ? a : b);
+
+    rekomendasi += `🥘 Susun terbanyak: ${mostTier.sku} dengan ${mostTier.tier} susun — bisa masak lebih banyak menu sekaligus.\n`;
+    if (biggest.sku !== mostTier.sku)
+      rekomendasi += `🍱 Kapasitas terbesar: ${biggest.sku} — cocok untuk keluarga besar.\n`;
+    if (fastest.sku !== mostTier.sku)
+      rekomendasi += `⚡ Daya terbesar: ${fastest.sku} dengan ${fastest.daya} — masak lebih cepat.\n`;
+  }
+
+  else if (cat === "Drip Coffee Machine") {
+    const biggest = compareProds.reduce((a, b) =>
+      parseFloat(a.kapasitas_tangki) > parseFloat(b.kapasitas_tangki) ? a : b);
+    const fastest = compareProds.reduce((a, b) => {
+      const aVal = parseInt((a.waktu||"99").replace(/[^0-9]/g,"")||"99");
+      const bVal = parseInt((b.waktu||"99").replace(/[^0-9]/g,"")||"99");
+      return aVal < bVal ? a : b;
+    });
+    const lowestPower = compareProds.reduce((a, b) =>
+      parseInt(a.daya) < parseInt(b.daya) ? a : b);
+
+    rekomendasi += `☕ Kapasitas terbesar: ${biggest.sku} dengan ${biggest.kapasitas_tangki} (${biggest.kapasitas_gelas}) — cocok buat kantor atau keluarga besar.\n`;
+    if (fastest.sku !== biggest.sku)
+      rekomendasi += `⚡ Paling cepat menyeduh: ${fastest.sku} dalam ${fastest.waktu} — kopi siap dalam sekejap.\n`;
+    if (lowestPower.sku !== biggest.sku)
+      rekomendasi += `💡 Paling hemat listrik: ${lowestPower.sku} dengan ${lowestPower.daya} — cocok buat pemakaian harian.\n`;
+  }
+
+  else if (cat === "Semi-auto Espresso") {
+    const highestPressure = compareProds.reduce((a, b) =>
+      parseInt(a.tekanan) > parseInt(b.tekanan) ? a : b);
+    const biggestTank = compareProds.reduce((a, b) =>
+      parseFloat(a.kapasitas_tangki) > parseFloat(b.kapasitas_tangki) ? a : b);
+    const fastestHeat = compareProds.reduce((a, b) => {
+      const aVal = parseInt((a.waktu_pemanasan||"999").replace(/[^0-9]/g,"")||"999");
+      const bVal = parseInt((b.waktu_pemanasan||"999").replace(/[^0-9]/g,"")||"999");
+      return aVal < bVal ? a : b;
+    });
+
+    rekomendasi += `☕ Tekanan tertinggi: ${highestPressure.sku} dengan ${highestPressure.tekanan} — hasil espresso paling kaya & beraroma.\n`;
+    if (biggestTank.sku !== highestPressure.sku)
+      rekomendasi += `💧 Tangki terbesar: ${biggestTank.sku} dengan ${biggestTank.kapasitas_tangki} — jarang perlu isi ulang.\n`;
+    if (fastestHeat.sku !== highestPressure.sku && fastestHeat.waktu_pemanasan !== "—")
+      rekomendasi += `⚡ Panas paling cepat: ${fastestHeat.sku} dalam ${fastestHeat.waktu_pemanasan} — nggak perlu nunggu lama.\n`;
+  }
+
+  else if (cat === "Capsule Coffee") {
+    const biggestTank = compareProds.reduce((a, b) =>
+      parseFloat(a.kapasitas_tangki) > parseFloat(b.kapasitas_tangki) ? a : b);
+    const fastestHeat = compareProds.reduce((a, b) => {
+      const aVal = parseInt((a.waktu_pemanasan||"999").replace(/[^0-9]/g,"")||"999");
+      const bVal = parseInt((b.waktu_pemanasan||"999").replace(/[^0-9]/g,"")||"999");
+      return aVal < bVal ? a : b;
+    });
+
+    rekomendasi += `💧 Tangki terbesar: ${biggestTank.sku} dengan ${biggestTank.kapasitas_tangki} — lebih jarang isi ulang.\n`;
+    if (fastestHeat.sku !== biggestTank.sku)
+      rekomendasi += `⚡ Siap paling cepat: ${fastestHeat.sku} dalam ${fastestHeat.waktu_pemanasan} — kopi langsung jadi!\n`;
+  }
+
+  else if (cat === "Electric Chopper") {
+    const biggest = compareProds.reduce((a, b) => {
+      const aVol = parseInt((a.kapasitas||"0").replace(/[^0-9]/g,"").slice(0,4)||"0");
+      const bVol = parseInt((b.kapasitas||"0").replace(/[^0-9]/g,"").slice(0,4)||"0");
+      return aVol > bVol ? a : b;
+    });
+    const highestPower = compareProds.reduce((a, b) =>
+      parseInt(a.daya) > parseInt(b.daya) ? a : b);
+    const portable = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("portabel"));
+
+    rekomendasi += `🥩 Kapasitas terbesar: ${biggest.sku} dengan ${biggest.kapasitas} — sekali proses lebih banyak.\n`;
+    if (highestPower.sku !== biggest.sku)
+      rekomendasi += `⚡ Daya terbesar: ${highestPower.sku} dengan ${highestPower.daya} — cacah bahan lebih cepat & halus.\n`;
+    if (portable.length > 0)
+      rekomendasi += `🎒 ${portable.map(p=>p.sku).join(" & ")} super portabel — cocok dibawa traveling atau masak di luar.\n`;
+  }
+
+  else if (cat === "Blender / Juicer") {
+    const highestPower = compareProds.reduce((a, b) =>
+      parseInt(a.daya) > parseInt(b.daya) ? a : b);
+    const biggest = compareProds.reduce((a, b) => {
+      const aVol = parseInt((a.kapasitas||"0").replace(/[^0-9]/g,"").slice(0,4)||"0");
+      const bVol = parseInt((b.kapasitas||"0").replace(/[^0-9]/g,"").slice(0,4)||"0");
+      return aVol > bVol ? a : b;
+    });
+    const mostBlades = compareProds.reduce((a, b) => {
+      const aBlades = parseInt((a.pisau||"0").replace(/[^0-9]/g,"").slice(0,2)||"0");
+      const bBlades = parseInt((b.pisau||"0").replace(/[^0-9]/g,"").slice(0,2)||"0");
+      return aBlades > bBlades ? a : b;
+    });
+    const portable = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("portabel"));
+    const noAmpas = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("ampas"));
+
+    rekomendasi += `⚡ Daya terbesar: ${highestPower.sku} dengan ${highestPower.daya} — paling bertenaga untuk blend bahan keras.\n`;
+    if (biggest.sku !== highestPower.sku)
+      rekomendasi += `🥤 Kapasitas terbesar: ${biggest.sku} dengan ${biggest.kapasitas} — sekali blend lebih banyak.\n`;
+    if (mostBlades.sku !== highestPower.sku)
+      rekomendasi += `🔪 Mata pisau terbanyak: ${mostBlades.sku} dengan ${mostBlades.pisau} — hasil blend lebih halus & merata.\n`;
+    if (portable.length > 0)
+      rekomendasi += `🎒 ${portable.map(p=>p.sku).join(" & ")} portabel — tinggal blend langsung minum dari botolnya.\n`;
+    if (noAmpas.length > 0)
+      rekomendasi += `🥤 ${noAmpas.map(p=>p.sku).join(" & ")} bebas ampas — sari buah murni tanpa sisa.\n`;
+  }
+
+  else if (cat === "Hair Dryer") {
+    const brushless = compareProds.filter(p => p.motor && p.motor.includes("tanpa sikat"));
+    const brushed   = compareProds.filter(p => p.motor && p.motor.includes("bersikat"));
+    const mostIon   = compareProds.reduce((a, b) => {
+      const aIon = parseInt((a.ion_negatif||"0").replace(/[^0-9]/g,"")||"0");
+      const bIon = parseInt((b.ion_negatif||"0").replace(/[^0-9]/g,"")||"0");
+      return aIon > bIon ? a : b;
+    });
+    const quietest  = compareProds.reduce((a, b) =>
+      parseFloat(a.kebisingan) < parseFloat(b.kebisingan) ? a : b);
+    const fastestAir = compareProds.reduce((a, b) =>
+      parseFloat(a.kecepatan) > parseFloat(b.kecepatan) ? a : b);
+    const foldable  = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("lipat"));
+
+    if (brushless.length > 0 && brushed.length > 0) {
+      rekomendasi += `⚡ ${brushless.map(p=>p.sku).join(" & ")} pakai motor brushless — lebih awet, senyap & tahan lama dibanding motor biasa.\n`;
+      rekomendasi += `💰 ${brushed.map(p=>p.sku).join(" & ")} pakai motor standar — lebih terjangkau untuk pemakaian sehari-hari.\n`;
+    }
+    if (parseInt(mostIon.ion_negatif) > 0)
+      rekomendasi += `✨ Ion negatif terbanyak: ${mostIon.sku} dengan ${mostIon.ion_negatif} — rambut paling halus & berkilau.\n`;
+    if (quietest.sku)
+      rekomendasi += `🔇 Paling senyap: ${quietest.sku} di ${quietest.kebisingan} — nyaman dipakai kapan aja.\n`;
+    if (fastestAir.sku !== quietest.sku)
+      rekomendasi += `💨 Angin paling kencang: ${fastestAir.sku} dengan ${fastestAir.kecepatan} — rambut kering lebih cepat.\n`;
+    if (foldable.length > 0)
+      rekomendasi += `🎒 ${foldable.map(p=>p.sku).join(" & ")} bisa dilipat — praktis masuk tas saat traveling.\n`;
+  }
+
+  else if (cat === "Hair Straightener") {
+    const fastestHeat = compareProds.reduce((a, b) =>
+      parseInt(a.waktu_panas) < parseInt(b.waktu_panas) ? a : b);
+    const mostSettings = compareProds.reduce((a, b) =>
+      parseInt(a.pengaturan) > parseInt(b.pengaturan) ? a : b);
+    const highestTemp = compareProds.reduce((a, b) => {
+      const aTemp = parseInt((a.suhu||"0").split("-").pop().replace(/[^0-9]/g,"")||"0");
+      const bTemp = parseInt((b.suhu||"0").split("-").pop().replace(/[^0-9]/g,"")||"0");
+      return aTemp > bTemp ? a : b;
+    });
+    const cordless = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("nirkabel"));
+    const mini = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("mini"));
+
+    rekomendasi += `⚡ Panas paling cepat: ${fastestHeat.sku} dalam ${fastestHeat.waktu_panas} — langsung siap styling.\n`;
+    if (mostSettings.sku !== fastestHeat.sku)
+      rekomendasi += `🎛️ Pengaturan suhu terbanyak: ${mostSettings.sku} dengan ${mostSettings.pengaturan} level — paling bisa disesuaikan dengan jenis rambut.\n`;
+    if (highestTemp.sku !== fastestHeat.sku)
+      rekomendasi += `🔥 Suhu tertinggi: ${highestTemp.sku} hingga ${highestTemp.suhu} — cocok untuk rambut tebal & keras.\n`;
+    if (cordless.length > 0)
+      rekomendasi += `🔋 ${cordless.map(p=>p.sku).join(" & ")} nirkabel — bebas styling tanpa repot kabel.\n`;
+    if (mini.length > 0)
+      rekomendasi += `🎒 ${mini.map(p=>p.sku).join(" & ")} mini & portabel — wajib masuk tas traveling.\n`;
+  }
+
+  else if (cat === "Hair Curler") {
+    const fastestHeat = compareProds.reduce((a, b) =>
+      parseInt(a.waktu_panas) < parseInt(b.waktu_panas) ? a : b);
+    const highestTemp = compareProds.reduce((a, b) => {
+      const aTemp = parseInt((a.suhu||"0").split("-").pop().replace(/[^0-9]/g,"")||"0");
+      const bTemp = parseInt((b.suhu||"0").split("-").pop().replace(/[^0-9]/g,"")||"0");
+      return aTemp > bTemp ? a : b;
+    });
+    const auto = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("auto"));
+    const portable = compareProds.filter(p =>
+      p.karakteristik && p.karakteristik.toLowerCase().includes("portabel"));
+
+    rekomendasi += `⚡ Panas paling cepat: ${fastestHeat.sku} dalam ${fastestHeat.waktu_panas} — langsung bisa keriting rambut.\n`;
+    if (highestTemp.sku !== fastestHeat.sku)
+      rekomendasi += `🔥 Suhu tertinggi: ${highestTemp.sku} hingga ${highestTemp.suhu} — cocok untuk rambut tebal & keras.\n`;
+    if (auto.length > 0)
+      rekomendasi += `🤖 ${auto.map(p=>p.sku).join(" & ")} auto curler — tinggal masukin rambut, keriting sendiri! Cocok buat yang nggak biasa styling.\n`;
+    if (portable.length > 0)
+      rekomendasi += `🎒 ${portable.map(p=>p.sku).join(" & ")} super portabel — styling kapan aja & di mana aja.\n`;
+
+    // diameter comparison
+    const diameters = compareProds.filter(p => p.diameter);
+    if (diameters.length > 1) {
+      const bigD = diameters.reduce((a, b) =>
+        parseInt(a.diameter) > parseInt(b.diameter) ? a : b);
+      const smallD = diameters.reduce((a, b) =>
+        parseInt(a.diameter) < parseInt(b.diameter) ? a : b);
+      if (bigD.sku !== smallD.sku)
+        rekomendasi += `🌀 ${bigD.sku} (${bigD.diameter}) untuk keriting lembut & natural, ${smallD.sku} (${smallD.diameter}) untuk hasil keriting lebih kencang & tahan lama.\n`;
+    }
+  }
+
+  else if (cat === "Hair Dryer Brush") {
+    const mostIon = compareProds.reduce((a, b) => {
+      const aIon = parseInt((a.ion_negatif||"0").replace(/[^0-9]/g,"")||"0");
+      const bIon = parseInt((b.ion_negatif||"0").replace(/[^0-9]/g,"")||"0");
+      return aIon > bIon ? a : b;
+    });
+    const fastestAir = compareProds.reduce((a, b) =>
+      parseFloat(a.kecepatan) > parseFloat(b.kecepatan) ? a : b);
+    const detachable = compareProds.filter(p => p.kepala_lepas === "✓");
+    const autoClean  = compareProds.filter(p =>
+      p.pengaturan && p.pengaturan.toLowerCase().includes("auto"));
+
+    if (parseInt(mostIon.ion_negatif) > 0)
+      rekomendasi += `✨ Ion negatif terbanyak: ${mostIon.sku} dengan ${mostIon.ion_negatif} — rambut paling halus & mengkilap.\n`;
+    rekomendasi += `💨 Airflow paling kencang: ${fastestAir.sku} dengan ${fastestAir.kecepatan} — rambut kering sekaligus terstyling lebih cepat.\n`;
+    if (detachable.length > 0)
+      rekomendasi += `🔄 ${detachable.map(p=>p.sku).join(" & ")} kepala bisa diganti — satu alat banyak gaya styling.\n`;
+    if (autoClean.length > 0)
+      rekomendasi += `🤖 ${autoClean.map(p=>p.sku).join(" & ")} punya mode auto-bersih — perawatan alat jadi lebih mudah.\n`;
+  }
+
+  if (rekomendasi === "") {
+    rekomendasi = "Semua produk di atas punya keunggulan masing-masing ya kak! Bisa disesuaikan dengan kebutuhan & budget kakak 😊\n";
+  }
+
+  msg += rekomendasi;
   msg += "\nKalau ada pertanyaan lain, kakak bisa tanya-tanya lagi ya! 🙏";
   return msg;
 }
