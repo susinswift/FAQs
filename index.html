@@ -694,7 +694,7 @@ function generateCSMessage(compareProds) {
     const num = ["1️⃣","2️⃣","3️⃣","4️⃣"][i];
     const col = catColors[p.category] || "#64748b";
     msg += `${num} ${p.sku} — ${p.name}\n`;
-    msg += `📌 _${p.karakteristik}_\n`;
+    msg += `📌 ${p.karakteristik}\n`;
     const points = generateSellingPoint(p);
     points.forEach(pt => { msg += `${pt}\n`; });
     msg += "\n";
