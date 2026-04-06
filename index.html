@@ -693,7 +693,7 @@ function generateCSMessage(compareProds) {
   compareProds.forEach((p, i) => {
     const num = ["1️⃣","2️⃣","3️⃣","4️⃣"][i];
     const col = catColors[p.category] || "#64748b";
-    msg += `${num} *${p.sku}* — ${p.name}\n`;
+    msg += `${num} ${p.sku} — ${p.name}\n`;
     msg += `📌 _${p.karakteristik}_\n`;
     const points = generateSellingPoint(p);
     points.forEach(pt => { msg += `${pt}\n`; });
@@ -702,7 +702,7 @@ function generateCSMessage(compareProds) {
 
   if (compareProds.length > 1) {
     msg += "━━━━━━━━━━━━━━━━\n";
-    msg += "💡 *Rekomendasi Singkat:*\n";
+    msg += "💡 Rekomendasi Singkat:\n";
 
     const hasBudget = compareProds.find(p =>
       p.karakteristik && (p.karakteristik.toLowerCase().includes("hemat") ||
@@ -717,14 +717,14 @@ function generateCSMessage(compareProds) {
     );
 
     if (hasBudget && hasPremium) {
-      msg += `🟢 Kalau kakak cari yang *budget-friendly*, *${hasBudget.sku}* bisa jadi pilihan terbaik!\n`;
-      msg += `⭐ Tapi kalau mau yang *performa lebih maksimal*, *${hasPremium.sku}* worth it banget kak!\n`;
+      msg += `🟢 Kalau kakak cari yang *budget-friendly*, ${hasBudget.sku} bisa jadi pilihan terbaik!\n`;
+      msg += `⭐ Tapi kalau mau yang *performa lebih maksimal*, ${hasPremium.sku} worth it banget kak!\n`;
     } else if (compareProds.length === 2) {
-      msg += `🟢 *${compareProds[0].sku}* cocok untuk kebutuhan standar sehari-hari.\n`;
-      msg += `⭐ *${compareProds[1].sku}* menawarkan fitur lebih lengkap untuk hasil optimal.\n`;
+      msg += `🟢 ${compareProds[0].sku} cocok untuk kebutuhan standar sehari-hari.\n`;
+      msg += `⭐ ${compareProds[1].sku} menawarkan fitur lebih lengkap untuk hasil optimal.\n`;
     } else {
       compareProds.forEach(p => {
-        msg += `• *${p.sku}* — ${p.karakteristik}\n`;
+        msg += `• ${p.sku} — ${p.karakteristik}\n`;
       });
     }
   }
