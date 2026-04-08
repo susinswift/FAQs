@@ -452,6 +452,152 @@ lapisan:"Lapisan Pelat",diameter:"Diameter Barrel",kepala_lepas:"Kepala Lepas-Pa
 fungsi_lainnya:"Fungsi Lainnya",aksesori:"Aksesori"
 };
 
+// ── USER MANUAL URL MAPPING (scraped from pc.simplus.online) ──
+const BASE = "https://pc.simplus.online/products/";
+const manualUrls = {
+  // Vacuum Cleaner
+  "XCQH002": BASE+"user-manual---corded-vacuum-cleaner-xcqh002",
+  "XCQH008": BASE+"user-manual---corded-vacuum-cleaner-xcqh008",
+  "XCQH011": BASE+"user-manual---vacuum-cleaner-xcqh011",
+  "XCQH014": BASE+"user-manual---vacuum-cleaner-xcqh014",
+  "XCQH015": BASE+"user-manual---horizontai-vacuum-cleaner-xcqh015",
+  "XCQH009": BASE+"user-manual---cordless-vacuum-cleaner-xcqh009",
+  "XCQH010": BASE+"user-manual---cordless-vacuum-cleaner-xcqh010",
+  "XCQH012": BASE+"user-manual---cordless-vacuum-cleaner-xcqh012",
+  "XCQH013": BASE+"user-manual---cordless-vacuum-cleaner-xcqh013",
+  "XCQH017": BASE+"user-manual---cordless-vacuum-cleaner-xcqh017",
+  // Garment Steamer / Iron
+  "GTJH008": BASE+"user-manual---handheld-garment-steamer-gtjh008",
+  "GTJH010": BASE+"user-manual---handheld-garment-steamer-gtjh010",
+  "GTJH011": BASE+"user-manual---foldable-handheld-garment-steamer-gtjh011",
+  "GTJH016": BASE+"user-manual---handheld-garment-steamer-gtjh016",
+  "GTJH017": BASE+"user-manual---handheld-garment-steamer-gtjh017",
+  "GTJH019": BASE+"user-manual---handheld-garment-steamer-gtjh019",
+  "GTJH020": BASE+"user-manual---handheld-garment-steamer-gtjh020",
+  "GTJH009": BASE+"user-manual---stand-garment-steamer-gtjh009",
+  "GTJH014": BASE+"user-manual---stand-garment-steamer-gtjh014",
+  "GTJH018": BASE+"user-manual---stand-garment-steamer-gtjh018",
+  "GTJH023": BASE+"user-manual---stand-garment-steamer-gtjh023",
+  // Dehumidifier
+  "CUSH001": BASE+"user-manual---dehumidifier-cush001",
+  "CUSH002": BASE+"user-manual---dehumidifier-cush002",
+  "CUSH004": BASE+"user-manual---dehumidifier-cush004",
+  "CUSH005": BASE+"user-manual---dehumidifier-cush004-1",
+  "CUSH006": BASE+"user-manual---dehumidifier-cush006",
+  "CUSH007": BASE+"user-manual---dehumidifier-cush007",
+  // Humidifier
+  "JASH002": BASE+"user-manual---humidifier-jash002",
+  "JASH003": BASE+"user-manual---humidifier-jash003",
+  "JASH004": BASE+"user-manual---humidifier-jash004",
+  "JASH005": BASE+"user-manual---humidifier-jash005",
+  "JASH006": BASE+"-user-manual---humidifier-jash006",
+  // Air Purifier
+  "KQJH004": BASE+"user-manual---air-purifier-kqjh004",
+  "KQJH005": BASE+"user-manual---air-purifier-kqjh005",
+  "KQJH006": BASE+"user-manual---air-purifier-kqjh006",
+  "KQJH007": BASE+"user-manual---air-purifier-kqjh007",
+  // Dust Mite Vacuum
+  "CMYH004": BASE+"user-manual---corded-mite-vaccum-cleaner-cmyh004",
+  "CMYH005": BASE+"user-manual---corded-mite-vaccum-cleaner-cmyh005",
+  "CMYH006": BASE+"user-manual---vacuum-cleaner-cmyh006",
+  "CMYH007": BASE+"user-manual---vacuum-cleaner-cmyh007",
+  // Vacuum Mop
+  "XDJH001": BASE+"user-manual---cordless-wet-dry-vacuum-cleaner-s-clean-v1-xdjh001",
+  "XDJH002": BASE+"user-manual---cordless-wet-dry-vacuum-cleaner-s-clean-v1-xdjh002",
+  "XDJH003": BASE+"user-manual---cordless-wet-dry-vacuum-cleaner-xdjh003",
+  "XDJH004": BASE+"user-manual---cordless-wet-dry-vacuum-cleaner-xdjh004",
+  "XDJH005": BASE+"user-manual---cordless-wet-dry-vacuum-cleaner-xdjh005",
+  // Carpet & Upholstery
+  "BYJH001": BASE+"user-manual---spot-cleaner-byjh001",
+  "BYJH002": BASE+"user-manual---portable-carpet-cleaner-byjh002",
+  "BYJH003": BASE+"user-manual---portable-carpet-cleaner-byjh003",
+  "BYJH004": BASE+"user-manual---portable-carpet-cleaner-byjh004",
+  // Electric Fan
+  "DFSH007": BASE+"user-manual---handheld-fan-dfsh007",
+  "DFSH010": BASE+"user-manual---usb-fan-dfsh010",
+  "DFSH011": BASE+"user-manual---usb-fan-dfsh011",
+  "DFSH012": BASE+"user-manual---usb-fan-dfsh012",
+  "DFSH013": BASE+"user-manual---usb-fan-dfsh013",
+  "DFSH014": BASE+"user-manual---usb-fan-dfsh014",
+  "DFSH015": BASE+"user-manual---usb-fan-dfsh015",
+  // Air Cooler
+  "LFSH002": BASE+"user-manual---electric-control-air-cooler-with-remote-lfsh002",
+  "LFSH003": BASE+"user-manual---air-cooler-lfsh003",
+  "LFSH004": BASE+"user-manual---air-cooler-lfsh004",
+  "LFSH005": BASE+"user-manual---air-cooler-lfsh005",
+  // Air Fryer Digital
+  "KQZG015": BASE+"user-manual---air-fryer-kqzg015",
+  "KQZG017": BASE+"user-manual---air-fryer-kqzg017-1",
+  "KQZG018": BASE+"user-manual---air-fryer-kqzg018",
+  "KQZG020": BASE+"user-manual---air-fryer-kqzg020",
+  // Air Fryer Knob
+  "KQZG007": BASE+"user-manual---air-fryer-kqzg007",
+  "KQZG013": BASE+"user-manual---air-fryer-kqzg013",
+  "KQZG014": BASE+"user-manual---air-fryer-kqzg014",
+  "KQZG021": BASE+"user-manual---air-fryer-kqzg021",
+  // Electric Cooker
+  "DZGH003": BASE+"user-manual---electric-hot-pot-with-stainless-steel-steamer-dzgh003",
+  "DZGH010": BASE+"user-manual---electric-cooker-dzgh010",
+  // Electric Steamer
+  "DZEG001": BASE+"user-manual---electric-food-steamer-dzeg001",
+  "DZEG002": BASE+"user-manual---electric-food-steamer-dzeg002",
+  "DZEG003": BASE+"user-manual---electric-food-steamer-dzeg003",
+  "DZEG004": BASE+"user-manual---electric-food-steamer-dzeg004",
+  "DZEG005": BASE+"user-manual---electric-food-steamer-dzeg005",
+  // Drip Coffee Machine
+  "KFJH006": BASE+"user-manual---drip-coffee-maker-kfjh006",
+  "KFJH009": BASE+"user-manual---drip-coffee-maker-kfjh009",
+  "KFJH011": BASE+"user-manual---electric-coffee-machine-kfjh011",
+  "KFJH012": BASE+"user-manual---electric-coffee-machine-kfjh012",
+  "KFJH013": BASE+"user-manual---electric-coffee-machine-kfjh013",
+  "KFJH018": BASE+"user-manual---electric-coffee-machine-kfjh018",
+  // Semi-auto Espresso
+  "KFJH007": BASE+"user-manual---semi-automatic-espresso-machine-kfjh007",
+  "KFJH014": BASE+"user-manual---electric-coffee-machine-kfjh014",
+  "KFJH017": BASE+"user-manual---electric-coffee-machine-kfjh017",
+  // Capsule Coffee
+  "KFJH008": BASE+"user-manual---electric-coffee-machine-kfjh008",
+  "KFJH019": BASE+"user-manual---electric-coffee-machine-kfjh019",
+  // Electric Chopper
+  "DDJR003": BASE+"user-manual---electric-food-chopper-ddjr003",
+  "DDJR004": BASE+"user-manual---food-processor-ddjr004",
+  "DDJR005": BASE+"user-manual---food-processor-ddjr005",
+  "DDJR006": BASE+"user-manual---food-chopper-ddjr006",
+  // Blender / Juicer
+  "LLJH004": BASE+"user-manual---food-processor-lljh004",
+  "LLJH005": BASE+"user-manual---3-in-1-food-processor-lljh005",
+  "LLJH007": BASE+"user-manual---electric-blender-lljh007",
+  "LLJH010": BASE+"user-manual---electric-blender-lljh010",
+  "ZZJH006": BASE+"user-manual---portable-blender-zzjh006",
+  "ZZJH008": BASE+"user-manual---portable-blender-zzjh008",
+  "ZZJH009": BASE+"user-manual---electric-juicer-zzjh009",
+  // Hair Dryer
+  "CFJH001": BASE+"user-manual---hair-dryer-cfjh001",
+  "CFJH004": BASE+"user-manual---hair-dryer-cfjh004",
+  "CFJH006": BASE+"user-manual---hyper-sim-x1-high-speed-hair-dryer-cfjh006",
+  "CFJH007": BASE+"user-manual---hair-dryer-cfjh007",
+  "CFJH008": BASE+"user-manual---hair-dryer-cfjh008",
+  "CFJH010": BASE+"user-manual---hair-dryer-cfjh010",
+  "CFJH011": BASE+"user-manual---hair-dryer-cfjh011",
+  // Hair Straightener
+  "ZFBA002": BASE+"user-manual---hair-straightener-zfba002",
+  "ZFBA003": BASE+"user-manual---hair-straightener-zfba003",
+  "ZFBA004": BASE+"user-manual---hair-straightener-zfba004",
+  "ZFBA005": BASE+"user-manual---hair-straightener-zfba005",
+  "ZFBA008": BASE+"user-manual---hair-straightener-zfba008",
+  "ZFSH001": BASE+"user-manual---hair-straightener-zfsh001",
+  // Hair Curler
+  "JFBA004": BASE+"user-manual---2-in-1-hair-straightener-curler-jfba004",
+  "JFBA005": BASE+"user-manual---auto-hair-curler-jfba005",
+  "JFBA006": BASE+"user-manual---egg-roll-hair-curler-jfba006",
+  "JFBA007": BASE+"user-manual---hair-curler-jfba007",
+  "JFBA008": BASE+"user-manual---hair-curler-jfba008",
+  "JFBA009": BASE+"user-manual---2-in-1-hair-straightener-curler-jfba009",
+  // Hair Dryer Brush
+  "RFSH001": BASE+"user-manual---hair-dryer-brush-rfsh001",
+  "RFSH002": BASE+"user-manual---hair-dryer-brush-rfsh002",
+};
+
 // ── FAQ DATA ──
 const faqs = {
 "Vacuum Cleaner":[
@@ -1015,10 +1161,25 @@ function renderGrid(filtered) {
         <div class="card-name">${p.name}</div>
         <div class="card-char" style="color:${col}">${p.karakteristik||""}</div>
         <div class="card-specs">${specRows}</div>
-        <button class="detail-btn" style="color:${col}"
-          onmouseover="this.style.background='${col}';this.style.color='#fff'"
-          onmouseout="this.style.background='#fafbff';this.style.color='${col}'"
-          onclick="event.stopPropagation();openModal('${p.sku}')">Detail lengkap →</button>
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          <button class="detail-btn" style="color:${col};margin-top:0;flex:1"
+            onmouseover="this.style.background='${col}';this.style.color='#fff'"
+            onmouseout="this.style.background='#fafbff';this.style.color='${col}'"
+            onclick="event.stopPropagation();openModal('${p.sku}')">Detail →</button>
+          ${manualUrls[p.sku] ? `<a href="${manualUrls[p.sku]}" target="_blank" rel="noopener"
+            onclick="event.stopPropagation()"
+            style="display:flex;align-items:center;justify-content:center;gap:4px;
+              flex:1;border:1.5px solid ${col}35;border-radius:10px;padding:7px;
+              font-size:11px;font-weight:600;color:${col};background:#fafbff;
+              text-decoration:none;transition:all 0.2s;"
+            onmouseover="this.style.background='${col}';this.style.color='#fff';this.style.borderColor='${col}'"
+            onmouseout="this.style.background='#fafbff';this.style.color='${col}';this.style.borderColor='${col}35'">
+            📖 Manual
+          </a>` : `<button disabled style="flex:1;border:1.5px solid #e2e8f0;border-radius:10px;padding:7px;
+              font-size:11px;font-weight:600;color:#cbd5e1;background:#fafbff;cursor:default;">
+            📖 N/A
+          </button>`}
+        </div>
       </div>`;
   }).join("");
 }
@@ -1045,6 +1206,22 @@ function openModal(sku) {
   const sp = generateSellingPoint(p);
   const spHTML = sp.length > 0 ? `<div style="margin-bottom:16px;background:${col}08;border-radius:10px;padding:12px;border:1px solid ${col}20;"><div style="font-size:10px;font-weight:700;color:${col};letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">🌟 Keunggulan Produk</div>${sp.map(s=>`<div style="font-size:12.5px;color:#334155;margin-bottom:5px;">${s}</div>`).join("")}</div>` : "";
   document.getElementById("modalSpecsList").innerHTML = spHTML + specsList + catRow;
+  // Add user manual link if available
+  const manualLink = manualUrls[p.sku];
+  const manualHTML = manualLink
+    ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
+        <a href="${manualLink}" target="_blank" rel="noopener"
+          style="display:flex;align-items:center;justify-content:center;gap:8px;
+            width:100%;padding:11px;border-radius:12px;text-decoration:none;font-weight:700;
+            font-size:13px;color:#fff;background:linear-gradient(135deg,${col},${col}cc);
+            box-shadow:0 4px 14px ${col}40;transition:all 0.2s;"
+          onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+          📖 Lihat User Manual
+        </a>
+      </div>`
+    : `<div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;
+          text-align:center;font-size:12px;color:#94a3b8;">User manual belum tersedia</div>`;
+  document.getElementById("modalSpecsList").innerHTML = spHTML + specsList + catRow + manualHTML;
   document.getElementById("modal").style.display = "flex";
 }
 
